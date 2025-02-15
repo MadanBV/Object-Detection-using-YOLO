@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO Object Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Upload an Image for YOLO Object Detection</h2>
+    <input type="file" id="imageUpload">
+    <button onclick="uploadImage()">Detect Objects</button>
+
+    <div id="output">
+        <img id="uploadedImage" style="max-width: 400px; display: none;">
+        <p id="detectedObjects"></p>
+    </div>
+
+    <script>
+        function uploadImage() {
+            let input = document.getElementById("imageUpload");
+            if (!input.files.length) {
+                alert("Please select an image.");
+                return;
+            }
+            let file = input.files[0];
+            let formData = new FormData();
+            formData.append("file", file);
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById("uploadedImage").src = data.image_url;
+                    document.getElementById("uploadedImage").style.display = "block";
+                    document.getElementById("detectedObjects").innerText = "Detected Objects: " + data.objects.join(", ");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
